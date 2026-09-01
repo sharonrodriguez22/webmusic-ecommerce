@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebMusic — Instrumentos Musicales</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <a href="#" class="logo">
+      <div class="logo-icon">♪</div>
+      <div class="logo-text">Web<span>Music</span></div>
+    </a>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar instrumentos, accesorios...">
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" title="Favoritos">♡</button>
+      <button class="btn-icon" title="Mi cuenta">👤</button>
+      <button class="btn-icon" id="cartBtn" title="Carrito">
+        🛒
+        <span class="cart-count" id="cartCount" hidden>0</span>
+      </button>
+    </div>
+  </div>
+  <div class="cat-nav" id="catNav">
+    <button class="cat-btn active" data-cat="all">Todos</button>
+    <button class="cat-btn" data-cat="guitarras">🎸 Guitarras</button>
+    <button class="cat-btn" data-cat="bajos">🎸 Bajos</button>
+    <button class="cat-btn" data-cat="teclados">🎹 Teclados</button>
+    <button class="cat-btn" data-cat="baterias">🥁 Baterías</button>
+    <button class="cat-btn" data-cat="viento">🎷 Viento</button>
+    <button class="cat-btn" data-cat="audio">🎧 Audio</button>
+    <button class="cat-btn" data-cat="accesorios">🎼 Accesorios</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>Tu música empieza aquí</h1>
+      <p>Encontrá los mejores instrumentos musicales y accesorios al mejor precio, con envío a todo el país.</p>
+      <button class="btn-primary" onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Ver catálogo →</button>
+    </div>
+    <div class="hero-visual">🎸</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="section-header" id="catalogo">
+    <h2>Catálogo</h2>
+    <span class="product-count" id="productCount"></span>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+  <div class="no-results" id="noResults" hidden>
+    <div class="icon">🔍</div>
+    <p>No se encontraron productos.</p>
+    <p style="font-size:.85rem;margin-top:4px">Probá con otro término o cambiá la categoría.</p>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-img" id="modalImg">
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-category" id="modalCategory"></div>
+      <h2 class="modal-name" id="modalName"></h2>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-details">
+        <div class="detail-item">
+          <div class="detail-label">Precio</div>
+          <div class="detail-value" id="modalPrice"></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Disponibilidad</div>
+          <div class="detail-value" id="modalStock"></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Marca</div>
+          <div class="detail-value" id="modalBrand"></div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">SKU</div>
+          <div class="detail-value" id="modalSKU"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <div class="qty-control">
+          <button id="qtyMinus">−</button>
+          <span id="qtyVal">1</span>
+          <button id="qtyPlus">+</button>
+        </div>
+        <button class="btn-cart" id="modalAddCart">🛒 Agregar al carrito</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo-text">Web<span>Music</span></div>
+      <p>Tu tienda online de instrumentos musicales y accesorios. Calidad, variedad y los mejores precios.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Categorías</h4>
+      <a href="#">Guitarras</a>
+      <a href="#">Bajos</a>
+      <a href="#">Teclados</a>
+      <a href="#">Baterías</a>
+      <a href="#">Audio</a>
+    </div>
+    <div class="footer-col">
+      <h4>Cuenta</h4>
+      <a href="#">Iniciar sesión</a>
+      <a href="#">Registrarse</a>
+      <a href="#">Mis pedidos</a>
+      <a href="#">Favoritos</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <a href="#">Contacto</a>
+      <a href="#">Envíos</a>
+      <a href="#">Devoluciones</a>
+      <a href="#">Preguntas frecuentes</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 WebMusic Solutions</span>
+    <span class="badge-academic">Prototipo académico — TP1 PPI, IFTS N.º 18</span>
+  </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
