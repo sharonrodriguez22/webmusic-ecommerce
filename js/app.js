@@ -1,17 +1,27 @@
 /**
  * WebMusic — E-commerce de Instrumentos Musicales
- * Lógica principal de la aplicación
- * TP1 PPI · IFTS N.º 18 · Sprint 1
+ * Main application logic
+ * TP1 PPI · IFTS N.º 18 · Sprint 1 & 2
  *
- * User Stories implementadas:
- *   US04 — Catálogo de productos
- *   US05 — Filtro por categoría
- *   US06 — Búsqueda de productos
- *   US07 — Detalle de producto (modal)
- *   US08 — Gestión de stock visible
+ * Implemented User Stories:
+ *   HU 01 — User registration
+ *   HU 02 — User login
+ *   HU 03 — Password recovery
+ *   HU 04 — Product catalog
+ *   HU 05 — Category filters
+ *   HU 06 — Product search (real-time)
+ *   HU 07 — Product detail (modal)
+ *   HU 08 — Stock management (visible)
+ *   HU 09 — Shopping cart (sidebar)
+ *   HU 10 — Checkout & payment simulation
+ *   HU 14 — Order history (customer)
+ *   HU 15 — Order management (admin)
+ *   HU 16 — Sales report (admin)
+ *   HU 17 — Customer report (admin)
+ *   HU 18 — Dashboard (admin)
  */
 
-// ===== DATOS DE PRODUCTOS (simulación de API / base de datos) =====
+// ===== PRODUCT DATA (API / database simulation) =====
 
 const products = [
   { id: 1, name: "Guitarra Acústica Folk", cat: "guitarras", img: "https://images.pexels.com/photos/6145550/pexels-photo-6145550.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop", brand: "Yamaha", price: 189990, stock: 12, desc: "Guitarra acústica con tapa de abeto, aros y fondo de meranti. Sonido cálido y equilibrado, ideal para principiantes y músicos intermedios.", sku: "WM-GA-001" },
@@ -40,7 +50,7 @@ const products = [
   { id: 24, name: "Cajón Peruano", cat: "baterias", img: "https://images.pexels.com/photos/5648529/pexels-photo-5648529.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop", brand: "Meinl", price: 89990, stock: 9, desc: "Cajón flamenco de abedul báltico con cuerdas de guitarra internas para efecto de caja. Acabado natural.", sku: "WM-CP-024" },
 ];
 
-// ===== NOMBRES DE CATEGORÍAS =====
+// ===== CATEGORY NAMES =====
 
 const catNames = {
   guitarras: "Guitarras",
@@ -53,14 +63,14 @@ const catNames = {
 };
 
 // ===================================================================
-//  EJECUCIÓN PRINCIPAL — se dispara cuando el DOM está listo
+//  MAIN — fires when DOM is ready
 // ===================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ===== REFERENCIAS AL DOM (cacheadas) =====
+  // ===== DOM REFERENCES (cached) =====
 
-  const $productGrid  = document.getElementById("productGrid");
+  const $productGrid   = document.getElementById("productGrid");
   const $noResults     = document.getElementById("noResults");
   const $productCount  = document.getElementById("productCount");
   const $searchInput   = document.getElementById("searchInput");
@@ -81,44 +91,94 @@ document.addEventListener("DOMContentLoaded", () => {
   const $cartCount     = document.getElementById("cartCount");
   const $toast         = document.getElementById("toast");
 
-  // ===== ESTADO DE LA APLICACIÓN =====
+  // Auth elements
+  const $accountBtn     = document.getElementById("accountBtn");
+  const $authOverlay    = document.getElementById("authOverlay");
+  const $authClose      = document.getElementById("authClose");
+  const $loginView      = document.getElementById("loginView");
+  const $registerView   = document.getElementById("registerView");
+  const $recoveryView   = document.getElementById("recoveryView");
+  const $recoverySuccess= document.getElementById("recoverySuccessView");
+  const $loginForm      = document.getElementById("loginForm");
+  const $registerForm   = document.getElementById("registerForm");
+  const $recoveryForm   = document.getElementById("recoveryForm");
+  const $userMenu       = document.getElementById("userMenu");
+  const $userMenuHeader = document.getElementById("userMenuHeader");
+
+  // Cart sidebar elements
+  const $cartBtn       = document.getElementById("cartBtn");
+  const $cartOverlay   = document.getElementById("cartOverlay");
+  const $cartClose     = document.getElementById("cartClose");
+  const $cartItems     = document.getElementById("cartItems");
+  const $cartEmpty     = document.getElementById("cartEmpty");
+  const $cartFooter    = document.getElementById("cartFooter");
+  const $cartSubtotal  = document.getElementById("cartSubtotal");
+  const $cartTotal     = document.getElementById("cartTotal");
+  const $checkoutBtn   = document.getElementById("checkoutBtn");
+
+  // Checkout elements
+  const $checkoutOverlay  = document.getElementById("checkoutOverlay");
+  const $checkoutClose    = document.getElementById("checkoutClose");
+  const $checkoutForm     = document.getElementById("checkoutForm");
+  const $checkoutFormView = document.getElementById("checkoutFormView");
+  const $orderConfirmView = document.getElementById("orderConfirmView");
+  const $checkoutSummary  = document.getElementById("checkoutSummary");
+  const $cardFields       = document.getElementById("cardFields");
+
+  // ===== APPLICATION STATE =====
 
   let currentCat   = "all";
   let searchTerm   = "";
   let modalQty     = 1;
   let modalProduct = null;
 
-  // Carrito persistente con localStorage
-  let cart = JSON.parse(localStorage.getItem("webmusic-cart")) || [];
+  // Cart — persisted with localStorage
+  let cart = JSON.parse(localStorage.getItem("webmusic-cart") || "[]");
 
-  // ===== FUNCIONES AUXILIARES =====
+  // Auth — persisted with localStorage
+  let users = JSON.parse(localStorage.getItem("webmusic-users") || "[]");
+  let currentUser = JSON.parse(localStorage.getItem("webmusic-session") || "null");
 
-  /** Formatea un precio en pesos argentinos */
+  // Orders — persisted with localStorage
+  let orders = JSON.parse(localStorage.getItem("webmusic-orders") || "[]");
+
+  // ===== UTILITY FUNCTIONS =====
+
+  /** Format a price in Argentine pesos */
   const formatPrice = (precio) => `$${precio.toLocaleString("es-AR")}`;
 
-  /** Devuelve etiqueta y clase CSS según nivel de stock (US08) */
+  /** Stock label and CSS class (HU 08) */
   const stockLabel = (stock) => {
     if (stock === 0) return { text: "Sin stock", cls: "no-stock" };
     if (stock <= 3) return { text: `Últimas ${stock} un.`, cls: "low-stock" };
     return { text: "En stock", cls: "in-stock" };
   };
 
-  /** Guarda el carrito en localStorage */
+  /** Save cart to localStorage */
   const saveCart = () => {
     localStorage.setItem("webmusic-cart", JSON.stringify(cart));
   };
 
-  /** Calcula la cantidad total de ítems en el carrito */
+  /** Total items in cart */
   const getCartTotal = () => cart.reduce((acc, item) => acc + item.qty, 0);
 
-  /** Actualiza el badge del carrito en el header */
+  /** Update cart badge in header */
   const updateCartBadge = () => {
     const total = getCartTotal();
     $cartCount.textContent = total;
     $cartCount.hidden = total === 0;
   };
 
-  // ===== TOAST — Notificaciones =====
+  /** Simple email validation */
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  /** Generate order number */
+  const generateOrderNumber = () => {
+    const num = Math.floor(100000 + Math.random() * 900000);
+    return `WM-${num}`;
+  };
+
+  // ===== TOAST — Notifications =====
 
   let toastTimer = null;
 
@@ -129,15 +189,15 @@ document.addEventListener("DOMContentLoaded", () => {
     toastTimer = setTimeout(() => $toast.classList.remove("show"), 2500);
   };
 
-  // ===== RENDERIZADO DE PRODUCTOS (US04) =====
+  // ===== PRODUCT RENDERING (HU 04) =====
 
   const renderProducts = () => {
-    // Filtrado por categoría (US05)
+    // Category filter (HU 05)
     let filtered = currentCat === "all"
       ? [...products]
       : products.filter((p) => p.cat === currentCat);
 
-    // Filtrado por búsqueda (US06)
+    // Search filter (HU 06)
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       filtered = filtered.filter(({ name, brand, cat, desc }) =>
@@ -148,10 +208,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // Actualizar contador de resultados
+    // Update result count
     $productCount.textContent = `${filtered.length} ${filtered.length === 1 ? "producto" : "productos"}`;
 
-    // Sin resultados
+    // No results
     if (filtered.length === 0) {
       $productGrid.innerHTML = "";
       $noResults.hidden = false;
@@ -160,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     $noResults.hidden = true;
 
-    // Generar tarjetas de producto (US04 + US08 badges de stock)
+    // Generate product cards (HU 04 + HU 08 stock badges)
     $productGrid.innerHTML = filtered
       .map((p) => {
         const { text, cls } = stockLabel(p.stock);
@@ -184,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   };
 
-  // ===== EVENTOS — Filtro por categoría (US05) =====
+  // ===== EVENTS — Category filter (HU 05) =====
 
   $catNav.addEventListener("click", (e) => {
     const btn = e.target.closest(".cat-btn");
@@ -196,17 +256,17 @@ document.addEventListener("DOMContentLoaded", () => {
     renderProducts();
   });
 
-  // ===== EVENTOS — Búsqueda en tiempo real (US06) =====
+  // ===== EVENTS — Real-time search (HU 06) =====
 
   $searchInput.addEventListener("input", (e) => {
     searchTerm = e.target.value.trim();
     renderProducts();
   });
 
-  // ===== EVENTOS — Click en grilla (delegación de eventos) =====
+  // ===== EVENTS — Grid click (event delegation) =====
 
   $productGrid.addEventListener("click", (e) => {
-    // Click en botón "Agregar" rápido
+    // Quick "Add" button click
     const addBtn = e.target.closest("[data-add-id]");
     if (addBtn) {
       e.stopPropagation();
@@ -218,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Click en tarjeta → abrir modal (US07)
+    // Card click → open modal (HU 07)
     const card = e.target.closest(".product-card");
     if (card) {
       const id = parseInt(card.dataset.id);
@@ -226,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ===== MODAL — Detalle de producto (US07) =====
+  // ===== MODAL — Product detail (HU 07) =====
 
   const openModal = (id) => {
     const product = products.find((p) => p.id === id);
@@ -255,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalOverlay.classList.add("open");
     document.body.style.overflow = "hidden";
 
-    // Listener para el botón cerrar dinámico
+    // Dynamic close button listener
     document.getElementById("modalCloseBtn")?.addEventListener("click", closeModal);
   };
 
@@ -265,17 +325,22 @@ document.addEventListener("DOMContentLoaded", () => {
     modalProduct = null;
   };
 
-  // Cerrar modal al hacer click fuera
+  // Close modal on overlay click
   $modalOverlay.addEventListener("click", (e) => {
     if (e.target === $modalOverlay) closeModal();
   });
 
-  // Cerrar modal con tecla Escape
+  // Close modals with Escape key
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+    if (e.key === "Escape") {
+      closeModal();
+      closeAuth();
+      closeCartSidebar();
+      closeCheckout();
+    }
   });
 
-  // Controles de cantidad
+  // Quantity controls
   $qtyMinus.addEventListener("click", () => {
     if (modalQty > 1) {
       modalQty--;
@@ -290,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Agregar al carrito desde el modal
+  // Add to cart from modal
   $modalAddCart.addEventListener("click", () => {
     if (modalProduct && modalProduct.stock > 0) {
       addToCart(modalProduct, modalQty);
@@ -298,12 +363,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ===== CARRITO — con persistencia en localStorage =====
+  // ===== CART LOGIC — with localStorage persistence =====
 
   const addToCart = (product, qty = 1) => {
     if (product.stock === 0) return;
 
-    // Buscar si el producto ya existe en el carrito
     const existing = cart.find((item) => item.id === product.id);
 
     if (existing) {
@@ -313,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         id: product.id,
         name: product.name,
         price: product.price,
+        img: product.img,
         qty,
       });
     }
@@ -322,9 +387,1036 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast(`${qty > 1 ? qty + "× " : ""}${product.name} agregado al carrito`);
   };
 
-  // ===== INICIALIZACIÓN =====
+  // ===== AUTH SYSTEM (HU 01, 02, 03) =====
 
-  updateCartBadge();  // Recuperar estado del carrito desde localStorage
-  renderProducts();   // Renderizar catálogo inicial
+  /** Show a specific auth view */
+  const showAuthView = (view) => {
+    [$loginView, $registerView, $recoveryView, $recoverySuccess].forEach((v) => v.hidden = true);
+    view.hidden = false;
+    // Clear errors
+    document.querySelectorAll(".form-error").forEach((e) => e.textContent = "");
+    document.querySelectorAll(".input-error").forEach((e) => e.classList.remove("input-error"));
+  };
+
+  /** Open auth modal */
+  const openAuth = (view = "login") => {
+    closeUserMenu();
+    if (view === "register") showAuthView($registerView);
+    else if (view === "recovery") showAuthView($recoveryView);
+    else showAuthView($loginView);
+    $authOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  /** Close auth modal */
+  const closeAuth = () => {
+    $authOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+    // Reset forms
+    $loginForm.reset();
+    $registerForm.reset();
+    $recoveryForm.reset();
+  };
+
+  /** Update header to reflect login state */
+  const updateAuthUI = () => {
+    if (currentUser) {
+      $accountBtn.classList.add("logged-in");
+      $accountBtn.textContent = currentUser.name.charAt(0).toUpperCase();
+      $accountBtn.title = `${currentUser.name} ${currentUser.lastName}`;
+    } else {
+      $accountBtn.classList.remove("logged-in");
+      $accountBtn.textContent = "👤";
+      $accountBtn.title = "Mi cuenta";
+    }
+  };
+
+  /** Save session */
+  const saveSession = (user) => {
+    currentUser = user;
+    localStorage.setItem("webmusic-session", JSON.stringify(user));
+    updateAuthUI();
+  };
+
+  /** Close session */
+  const logout = () => {
+    currentUser = null;
+    localStorage.removeItem("webmusic-session");
+    updateAuthUI();
+    closeUserMenu();
+    showToast("Sesión cerrada");
+  };
+
+  // Auth close button
+  $authClose.addEventListener("click", closeAuth);
+  $authOverlay.addEventListener("click", (e) => {
+    if (e.target === $authOverlay) closeAuth();
+  });
+
+  // Nav between auth views
+  document.getElementById("goToRegister").addEventListener("click", (e) => { e.preventDefault(); showAuthView($registerView); });
+  document.getElementById("goToLogin").addEventListener("click", (e) => { e.preventDefault(); showAuthView($loginView); });
+  document.getElementById("goToRecovery").addEventListener("click", (e) => { e.preventDefault(); showAuthView($recoveryView); });
+  document.getElementById("backToLogin").addEventListener("click", (e) => { e.preventDefault(); showAuthView($loginView); });
+  document.getElementById("recoveryBackBtn").addEventListener("click", () => showAuthView($loginView));
+
+  // Account button — show login or user menu
+  $accountBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (currentUser) {
+      toggleUserMenu();
+    } else {
+      openAuth("login");
+    }
+  });
+
+  // User menu
+  const toggleUserMenu = () => {
+    if ($userMenu.hidden) {
+      const rect = $accountBtn.getBoundingClientRect();
+      $userMenu.style.top = (rect.bottom + 8) + "px";
+      $userMenu.style.right = (window.innerWidth - rect.right) + "px";
+      $userMenuHeader.textContent = `${currentUser.name} ${currentUser.lastName}`;
+      $userMenu.hidden = false;
+    } else {
+      closeUserMenu();
+    }
+  };
+
+  const closeUserMenu = () => {
+    $userMenu.hidden = true;
+  };
+
+  document.addEventListener("click", (e) => {
+    if (!$userMenu.hidden && !$userMenu.contains(e.target) && e.target !== $accountBtn) {
+      closeUserMenu();
+    }
+  });
+
+  document.getElementById("userMenuLogout").addEventListener("click", (e) => {
+    e.preventDefault();
+    logout();
+  });
+
+  // Footer auth links
+  document.querySelectorAll(".footer-login-link").forEach((el) => {
+    el.addEventListener("click", (e) => { e.preventDefault(); openAuth("login"); });
+  });
+  document.querySelectorAll(".footer-register-link").forEach((el) => {
+    el.addEventListener("click", (e) => { e.preventDefault(); openAuth("register"); });
+  });
+
+  // ===== REGISTER FORM (HU 01) =====
+
+  $registerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    const name = document.getElementById("regName").value.trim();
+    const lastName = document.getElementById("regLastName").value.trim();
+    const email = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const confirm = document.getElementById("regConfirm").value;
+
+    // Clear errors
+    document.querySelectorAll("#registerView .form-error").forEach((el) => el.textContent = "");
+    document.querySelectorAll("#registerView .input-error").forEach((el) => el.classList.remove("input-error"));
+
+    if (!name) {
+      document.getElementById("regNameError").textContent = "Ingresá tu nombre";
+      document.getElementById("regName").classList.add("input-error");
+      valid = false;
+    }
+    if (!lastName) {
+      document.getElementById("regLastNameError").textContent = "Ingresá tu apellido";
+      document.getElementById("regLastName").classList.add("input-error");
+      valid = false;
+    }
+    if (!email || !isValidEmail(email)) {
+      document.getElementById("regEmailError").textContent = "Ingresá un correo válido";
+      document.getElementById("regEmail").classList.add("input-error");
+      valid = false;
+    }
+    if (password.length < 6) {
+      document.getElementById("regPasswordError").textContent = "Mínimo 6 caracteres";
+      document.getElementById("regPassword").classList.add("input-error");
+      valid = false;
+    }
+    if (password !== confirm) {
+      document.getElementById("regConfirmError").textContent = "Las contraseñas no coinciden";
+      document.getElementById("regConfirm").classList.add("input-error");
+      valid = false;
+    }
+
+    // Check if email is already registered
+    if (valid && users.some((u) => u.email === email)) {
+      document.getElementById("regEmailError").textContent = "Este correo ya está registrado";
+      document.getElementById("regEmail").classList.add("input-error");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Create user
+    const newUser = { name, lastName, email, password };
+    users.push(newUser);
+    localStorage.setItem("webmusic-users", JSON.stringify(users));
+
+    // Auto-login
+    saveSession({ name, lastName, email });
+    closeAuth();
+    showToast(`¡Bienvenido/a, ${name}!`);
+  });
+
+  // ===== LOGIN FORM (HU 02) =====
+
+  $loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    // Clear errors
+    document.querySelectorAll("#loginView .form-error").forEach((el) => el.textContent = "");
+    document.querySelectorAll("#loginView .input-error").forEach((el) => el.classList.remove("input-error"));
+
+    if (!email || !isValidEmail(email)) {
+      document.getElementById("loginEmailError").textContent = "Ingresá un correo válido";
+      document.getElementById("loginEmail").classList.add("input-error");
+      valid = false;
+    }
+    if (!password) {
+      document.getElementById("loginPasswordError").textContent = "Ingresá tu contraseña";
+      document.getElementById("loginPassword").classList.add("input-error");
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Find user
+    const user = users.find((u) => u.email === email && u.password === password);
+    if (!user) {
+      document.getElementById("loginPasswordError").textContent = "Correo o contraseña incorrectos";
+      document.getElementById("loginPassword").classList.add("input-error");
+      return;
+    }
+
+    saveSession({ name: user.name, lastName: user.lastName, email: user.email });
+    closeAuth();
+    showToast(`¡Hola, ${user.name}!`);
+  });
+
+  // ===== PASSWORD RECOVERY FORM (HU 03) =====
+
+  $recoveryForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("recoveryEmail").value.trim();
+
+    // Clear errors
+    document.getElementById("recoveryEmailError").textContent = "";
+    document.getElementById("recoveryEmail").classList.remove("input-error");
+
+    if (!email || !isValidEmail(email)) {
+      document.getElementById("recoveryEmailError").textContent = "Ingresá un correo válido";
+      document.getElementById("recoveryEmail").classList.add("input-error");
+      return;
+    }
+
+    // Simulate sending recovery email (always succeeds — academic prototype)
+    showAuthView($recoverySuccess);
+  });
+
+  // ===== CART SIDEBAR (HU 09) =====
+
+  /** Open cart sidebar */
+  const openCartSidebar = () => {
+    renderCartSidebar();
+    $cartOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  /** Close cart sidebar */
+  const closeCartSidebar = () => {
+    $cartOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  /** Render cart sidebar content */
+  const renderCartSidebar = () => {
+    if (cart.length === 0) {
+      $cartItems.innerHTML = "";
+      $cartEmpty.hidden = false;
+      $cartFooter.style.display = "none";
+      return;
+    }
+
+    $cartEmpty.hidden = true;
+    $cartFooter.style.display = "";
+
+    $cartItems.innerHTML = cart
+      .map((item) => {
+        const product = products.find((p) => p.id === item.id);
+        const img = product ? product.img : "";
+        return `
+          <div class="cart-item" data-cart-id="${item.id}">
+            <div class="cart-item-img">
+              <img src="${img}" alt="${item.name}" loading="lazy">
+            </div>
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-price">${formatPrice(item.price)} c/u</div>
+              <div class="cart-item-controls">
+                <button class="cart-qty-btn" data-cart-minus="${item.id}">−</button>
+                <span class="cart-item-qty">${item.qty}</span>
+                <button class="cart-qty-btn" data-cart-plus="${item.id}">+</button>
+                <button class="cart-item-remove" data-cart-remove="${item.id}">Eliminar</button>
+              </div>
+            </div>
+            <div class="cart-item-subtotal">${formatPrice(item.price * item.qty)}</div>
+          </div>`;
+      })
+      .join("");
+
+    // Update totals
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+    $cartSubtotal.textContent = formatPrice(subtotal);
+    $cartTotal.textContent = formatPrice(subtotal);
+  };
+
+  // Cart button opens sidebar
+  $cartBtn.addEventListener("click", openCartSidebar);
+  $cartClose.addEventListener("click", closeCartSidebar);
+  $cartOverlay.addEventListener("click", (e) => {
+    if (e.target === $cartOverlay) closeCartSidebar();
+  });
+
+  // Cart item controls (event delegation)
+  $cartItems.addEventListener("click", (e) => {
+    const minusBtn = e.target.closest("[data-cart-minus]");
+    const plusBtn = e.target.closest("[data-cart-plus]");
+    const removeBtn = e.target.closest("[data-cart-remove]");
+
+    if (minusBtn) {
+      const id = parseInt(minusBtn.dataset.cartMinus);
+      const item = cart.find((i) => i.id === id);
+      if (item) {
+        item.qty--;
+        if (item.qty <= 0) cart = cart.filter((i) => i.id !== id);
+        saveCart();
+        updateCartBadge();
+        renderCartSidebar();
+      }
+    }
+
+    if (plusBtn) {
+      const id = parseInt(plusBtn.dataset.cartPlus);
+      const item = cart.find((i) => i.id === id);
+      const product = products.find((p) => p.id === id);
+      if (item && product && item.qty < product.stock) {
+        item.qty++;
+        saveCart();
+        updateCartBadge();
+        renderCartSidebar();
+      }
+    }
+
+    if (removeBtn) {
+      const id = parseInt(removeBtn.dataset.cartRemove);
+      const removed = cart.find((i) => i.id === id);
+      cart = cart.filter((i) => i.id !== id);
+      saveCart();
+      updateCartBadge();
+      renderCartSidebar();
+      if (removed) showToast(`${removed.name} eliminado del carrito`);
+    }
+  });
+
+  // ===== CHECKOUT (HU 10) =====
+
+  /** Open checkout modal */
+  const openCheckout = () => {
+    if (cart.length === 0) return;
+
+    // Must be logged in
+    if (!currentUser) {
+      closeCartSidebar();
+      openAuth("login");
+      showToast("Iniciá sesión para finalizar tu compra");
+      return;
+    }
+
+    closeCartSidebar();
+
+    // Populate checkout form with user data
+    const $shipName = document.getElementById("shipName");
+    $shipName.value = `${currentUser.name} ${currentUser.lastName}`;
+
+    // Render order summary
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+    $checkoutSummary.innerHTML = `
+      <h4 class="checkout-section-title" style="margin-top:0">Resumen del pedido</h4>
+      ${cart.map((item) => `
+        <div class="checkout-summary-item">
+          <span>${item.qty}× ${item.name}</span>
+          <span>${formatPrice(item.price * item.qty)}</span>
+        </div>`).join("")}
+      <div class="checkout-summary-item">
+        <span>Envío</span>
+        <span style="color:var(--green);font-weight:500">Gratis</span>
+      </div>
+      <div class="checkout-summary-total">
+        <span>Total</span>
+        <span>${formatPrice(subtotal)}</span>
+      </div>`;
+
+    $checkoutFormView.hidden = false;
+    $orderConfirmView.hidden = true;
+    $checkoutOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  /** Close checkout modal */
+  const closeCheckout = () => {
+    $checkoutOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+    $checkoutForm.reset();
+  };
+
+  $checkoutBtn.addEventListener("click", openCheckout);
+  $checkoutClose.addEventListener("click", closeCheckout);
+  $checkoutOverlay.addEventListener("click", (e) => {
+    if (e.target === $checkoutOverlay) closeCheckout();
+  });
+
+  // Toggle card fields based on payment method
+  document.querySelectorAll("input[name='payMethod']").forEach((radio) => {
+    radio.addEventListener("change", () => {
+      $cardFields.style.display = radio.value === "card" ? "" : "none";
+    });
+  });
+
+  // Submit checkout
+  $checkoutForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const shipName = document.getElementById("shipName").value.trim();
+    const shipPhone = document.getElementById("shipPhone").value.trim();
+    const shipAddress = document.getElementById("shipAddress").value.trim();
+    const shipCity = document.getElementById("shipCity").value.trim();
+    const shipZip = document.getElementById("shipZip").value.trim();
+
+    if (!shipName || !shipPhone || !shipAddress || !shipCity || !shipZip) {
+      showToast("Completá todos los campos de envío");
+      return;
+    }
+
+    // Simulate payment processing
+    const orderNumber = generateOrderNumber();
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+    const payMethod = document.querySelector("input[name='payMethod']:checked").value;
+    const payLabels = { card: "Tarjeta de crédito/débito", transfer: "Transferencia bancaria", mp: "Mercado Pago" };
+
+    // Save order
+    const order = {
+      orderNumber,
+      date: new Date().toISOString(),
+      items: [...cart],
+      total: subtotal,
+      shipping: { name: shipName, phone: shipPhone, address: shipAddress, city: shipCity, zip: shipZip },
+      payment: payMethod,
+      user: currentUser.email,
+    };
+    orders.push(order);
+    localStorage.setItem("webmusic-orders", JSON.stringify(orders));
+
+    // Show confirmation
+    document.getElementById("orderNumber").textContent = orderNumber;
+    document.getElementById("orderConfirmDetails").innerHTML = `
+      <div><strong>Dirección:</strong> ${shipAddress}, ${shipCity} (${shipZip})</div>
+      <div><strong>Teléfono:</strong> ${shipPhone}</div>
+      <div><strong>Método de pago:</strong> ${payLabels[payMethod]}</div>
+      <div><strong>Total:</strong> ${formatPrice(subtotal)}</div>
+      <div><strong>Productos:</strong> ${cart.length} (${getCartTotal()} unidades)</div>`;
+
+    $checkoutFormView.hidden = true;
+    $orderConfirmView.hidden = false;
+
+    // Clear cart
+    cart = [];
+    saveCart();
+    updateCartBadge();
+
+    showToast("¡Pedido confirmado!");
+  });
+
+  // "Keep shopping" button after order
+  document.getElementById("orderDoneBtn").addEventListener("click", () => {
+    closeCheckout();
+  });
+
+  // ===== ORDERS HISTORY (HU 14) =====
+
+  const $ordersOverlay = document.getElementById("ordersOverlay");
+  const $ordersClose   = document.getElementById("ordersClose");
+  const $ordersList    = document.getElementById("ordersList");
+  const $ordersEmpty   = document.getElementById("ordersEmpty");
+
+  const openOrders = () => {
+    if (!currentUser) {
+      openAuth("login");
+      showToast("Iniciá sesión para ver tus pedidos");
+      return;
+    }
+    closeUserMenu();
+    renderOrdersHistory();
+    $ordersOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeOrders = () => {
+    $ordersOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  const renderOrdersHistory = () => {
+    const userOrders = orders
+      .filter((o) => o.user === currentUser.email)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (userOrders.length === 0) {
+      $ordersList.innerHTML = "";
+      $ordersEmpty.hidden = false;
+      return;
+    }
+
+    $ordersEmpty.hidden = true;
+
+    $ordersList.innerHTML = userOrders.map((o) => {
+      const date = new Date(o.date);
+      const dateStr = date.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" });
+      const status = o.status || "pending";
+      const statusLabels = { pending: "Pendiente", processing: "En proceso", shipped: "Enviado", delivered: "Entregado", cancelled: "Cancelado" };
+      const itemsSummary = o.items.map((i) => `${i.qty}× ${i.name}`).join(", ");
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <span class="order-card-number">${o.orderNumber}</span>
+            <span class="order-card-date">${dateStr}</span>
+          </div>
+          <div class="order-card-items">${itemsSummary}</div>
+          <div class="order-card-footer">
+            <span class="order-card-total">${formatPrice(o.total)}</span>
+            <span class="order-status-badge ${status}">${statusLabels[status]}</span>
+          </div>
+        </div>`;
+    }).join("");
+  };
+
+  $ordersClose.addEventListener("click", closeOrders);
+  $ordersOverlay.addEventListener("click", (e) => {
+    if (e.target === $ordersOverlay) closeOrders();
+  });
+
+  document.getElementById("userMenuOrders").addEventListener("click", (e) => {
+    e.preventDefault();
+    openOrders();
+  });
+
+  // ===== ADMIN PANEL (HU 15, 16, 17, 18) =====
+
+  const $adminOverlay = document.getElementById("adminOverlay");
+  const $adminClose   = document.getElementById("adminClose");
+
+  const openAdmin = () => {
+    if (!currentUser) {
+      openAuth("login");
+      showToast("Iniciá sesión para acceder al panel");
+      return;
+    }
+    closeUserMenu();
+    renderDashboard();
+    $adminOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeAdmin = () => {
+    $adminOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  $adminClose.addEventListener("click", closeAdmin);
+  $adminOverlay.addEventListener("click", (e) => {
+    if (e.target === $adminOverlay) closeAdmin();
+  });
+
+  document.getElementById("userMenuAdmin").addEventListener("click", (e) => {
+    e.preventDefault();
+    openAdmin();
+  });
+
+  // Admin tab switching
+  document.querySelectorAll(".admin-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".admin-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const panelId = tab.dataset.tab;
+      document.querySelectorAll(".admin-panel").forEach((p) => p.hidden = true);
+
+      if (panelId === "dashboard") {
+        document.getElementById("panelDashboard").hidden = false;
+        renderDashboard();
+      } else if (panelId === "orders") {
+        document.getElementById("panelOrders").hidden = false;
+        renderAdminOrders();
+      } else if (panelId === "sales") {
+        document.getElementById("panelSales").hidden = false;
+        renderSalesReport();
+      } else if (panelId === "customers") {
+        document.getElementById("panelCustomers").hidden = false;
+        renderCustomersReport();
+      }
+    });
+  });
+
+  // Close all new overlays on Escape
+  const origKeydown = document.onkeydown;
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeOrders();
+      closeAdmin();
+    }
+  });
+
+  // ===== HU 18 — Dashboard =====
+
+  const renderDashboard = () => {
+    const allOrders = orders;
+    const totalRevenue = allOrders.reduce((sum, o) => sum + o.total, 0);
+    const totalOrders = allOrders.length;
+    const uniqueCustomers = new Set(allOrders.map((o) => o.user)).size;
+    const totalUnits = allOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0);
+    const avgTicket = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
+    document.getElementById("kpiGrid").innerHTML = `
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value">${formatPrice(totalRevenue)}</div>
+        <div class="kpi-label">Ingresos totales</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-value">${totalOrders}</div>
+        <div class="kpi-label">Pedidos</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-value">${uniqueCustomers}</div>
+        <div class="kpi-label">Clientes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-value">${formatPrice(avgTicket)}</div>
+        <div class="kpi-label">Ticket promedio</div>
+      </div>`;
+
+    // Sales chart (last 7 days)
+    renderSalesChart();
+
+    // Top products
+    renderTopProducts();
+  };
+
+  const renderSalesChart = () => {
+    const canvas = document.getElementById("salesChart");
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = 220 * dpr;
+    ctx.scale(dpr, dpr);
+    const W = canvas.clientWidth;
+    const H = 220;
+
+    // Compute daily revenue for last 7 days
+    const days = [];
+    const dayLabels = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      days.push(key);
+      dayLabels.push(d.toLocaleDateString("es-AR", { weekday: "short" }));
+    }
+
+    const dailyRevenue = days.map((day) => {
+      return orders
+        .filter((o) => o.date.slice(0, 10) === day)
+        .reduce((sum, o) => sum + o.total, 0);
+    });
+
+    const maxVal = Math.max(...dailyRevenue, 1);
+    const padTop = 20, padBottom = 30, padLeft = 10, padRight = 10;
+    const chartW = W - padLeft - padRight;
+    const chartH = H - padTop - padBottom;
+
+    // Read CSS variables for theming
+    const style = getComputedStyle(document.documentElement);
+    const textMuted = style.getPropertyValue("--text-muted").trim() || "#8c8172";
+    const accent = style.getPropertyValue("--accent").trim() || "#b8860b";
+    const accentSoft = style.getPropertyValue("--accent-soft").trim() || "rgba(184,134,11,.1)";
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Draw bars
+    const barWidth = chartW / days.length * 0.6;
+    const gap = chartW / days.length;
+
+    dailyRevenue.forEach((val, i) => {
+      const barH = (val / maxVal) * chartH;
+      const x = padLeft + i * gap + (gap - barWidth) / 2;
+      const y = padTop + chartH - barH;
+
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      const r = 4;
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + barWidth - r, y);
+      ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + r);
+      ctx.lineTo(x + barWidth, y + barH);
+      ctx.lineTo(x, y + barH);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.fill();
+
+      // Value on top
+      if (val > 0) {
+        ctx.fillStyle = textMuted;
+        ctx.font = "11px 'DM Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(formatPrice(val), x + barWidth / 2, y - 6);
+      }
+    });
+
+    // Day labels
+    ctx.fillStyle = textMuted;
+    ctx.font = "12px 'DM Sans', sans-serif";
+    ctx.textAlign = "center";
+    dayLabels.forEach((label, i) => {
+      const x = padLeft + i * gap + gap / 2;
+      ctx.fillText(label, x, H - 8);
+    });
+  };
+
+  const renderTopProducts = () => {
+    const productSales = {};
+    orders.forEach((o) => {
+      o.items.forEach((item) => {
+        if (!productSales[item.id]) {
+          productSales[item.id] = { name: item.name, qty: 0 };
+        }
+        productSales[item.id].qty += item.qty;
+      });
+    });
+
+    const sorted = Object.values(productSales).sort((a, b) => b.qty - a.qty).slice(0, 5);
+
+    const $topProducts = document.getElementById("topProducts");
+    if (sorted.length === 0) {
+      $topProducts.innerHTML = '<div class="admin-no-data">Sin datos de ventas</div>';
+      return;
+    }
+
+    $topProducts.innerHTML = sorted.map((p, i) => `
+      <div class="top-product-row">
+        <span class="top-product-rank">${i + 1}</span>
+        <span class="top-product-name">${p.name}</span>
+        <span class="top-product-qty">${p.qty} un.</span>
+      </div>`).join("");
+  };
+
+  // ===== HU 15 — Order Management =====
+
+  const renderAdminOrders = () => {
+    const allOrders = [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const $body = document.getElementById("adminOrdersBody");
+    const $empty = document.getElementById("adminOrdersEmpty");
+
+    if (allOrders.length === 0) {
+      $body.innerHTML = "";
+      $empty.hidden = false;
+      return;
+    }
+
+    $empty.hidden = true;
+    const statusLabels = { pending: "Pendiente", processing: "En proceso", shipped: "Enviado", delivered: "Entregado", cancelled: "Cancelado" };
+
+    $body.innerHTML = allOrders.map((o) => {
+      const date = new Date(o.date).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" });
+      const status = o.status || "pending";
+      const customerName = o.shipping ? o.shipping.name : o.user;
+
+      return `
+        <tr>
+          <td><strong>${o.orderNumber}</strong></td>
+          <td>${date}</td>
+          <td>${customerName}</td>
+          <td>${formatPrice(o.total)}</td>
+          <td><span class="order-status-badge ${status}">${statusLabels[status]}</span></td>
+          <td class="col-actions">
+            <select class="admin-status-select" data-order="${o.orderNumber}">
+              ${Object.entries(statusLabels).map(([val, label]) =>
+                `<option value="${val}" ${val === status ? "selected" : ""}>${label}</option>`
+              ).join("")}
+            </select>
+          </td>
+        </tr>`;
+    }).join("");
+  };
+
+  // Admin orders — status change + search + filter (event delegation)
+  document.getElementById("adminOrdersBody").addEventListener("change", (e) => {
+    const select = e.target.closest(".admin-status-select");
+    if (!select) return;
+
+    const orderNum = select.dataset.order;
+    const newStatus = select.value;
+    const order = orders.find((o) => o.orderNumber === orderNum);
+    if (order) {
+      order.status = newStatus;
+      localStorage.setItem("webmusic-orders", JSON.stringify(orders));
+      renderAdminOrders();
+      showToast(`Pedido ${orderNum} → ${newStatus}`);
+    }
+  });
+
+  // Search and filter for admin orders
+  document.getElementById("adminOrderSearch").addEventListener("input", filterAdminOrders);
+  document.getElementById("adminOrderFilter").addEventListener("change", filterAdminOrders);
+
+  function filterAdminOrders() {
+    const search = document.getElementById("adminOrderSearch").value.toLowerCase().trim();
+    const filterStatus = document.getElementById("adminOrderFilter").value;
+    const rows = document.querySelectorAll("#adminOrdersBody tr");
+
+    rows.forEach((row) => {
+      const text = row.textContent.toLowerCase();
+      const statusBadge = row.querySelector(".order-status-badge");
+      const status = statusBadge ? statusBadge.classList[1] : "";
+
+      const matchesSearch = !search || text.includes(search);
+      const matchesFilter = filterStatus === "all" || status === filterStatus;
+
+      row.style.display = matchesSearch && matchesFilter ? "" : "none";
+    });
+  }
+
+  // ===== HU 16 — Sales Report =====
+
+  const renderSalesReport = () => {
+    const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+    const totalUnits = orders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.qty, 0), 0);
+    const totalOrders = orders.length;
+    const avgTicket = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
+    document.getElementById("salesSummary").innerHTML = `
+      <div class="report-tile">
+        <div class="report-tile-value">${formatPrice(totalRevenue)}</div>
+        <div class="report-tile-label">Ingresos totales</div>
+      </div>
+      <div class="report-tile">
+        <div class="report-tile-value">${totalUnits}</div>
+        <div class="report-tile-label">Unidades vendidas</div>
+      </div>
+      <div class="report-tile">
+        <div class="report-tile-value">${totalOrders}</div>
+        <div class="report-tile-label">Pedidos</div>
+      </div>
+      <div class="report-tile">
+        <div class="report-tile-value">${formatPrice(avgTicket)}</div>
+        <div class="report-tile-label">Ticket promedio</div>
+      </div>`;
+
+    // Revenue by category chart
+    renderCategorySalesChart();
+
+    // Sales detail table
+    renderSalesDetailTable();
+  };
+
+  const renderCategorySalesChart = () => {
+    const catRevenue = {};
+    orders.forEach((o) => {
+      o.items.forEach((item) => {
+        const product = products.find((p) => p.id === item.id);
+        const cat = product ? product.cat : "otros";
+        if (!catRevenue[cat]) catRevenue[cat] = 0;
+        catRevenue[cat] += item.price * item.qty;
+      });
+    });
+
+    const canvas = document.getElementById("categorySalesChart");
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = 250 * dpr;
+    ctx.scale(dpr, dpr);
+    const W = canvas.clientWidth;
+    const H = 250;
+
+    const entries = Object.entries(catRevenue).sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim();
+      ctx.font = "14px 'DM Sans', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Sin datos de ventas", W / 2, H / 2);
+      return;
+    }
+
+    const maxVal = Math.max(...entries.map((e) => e[1]), 1);
+    const barH = 28;
+    const gap = 10;
+    const padLeft = 90, padRight = 80;
+    const startY = 10;
+
+    const style = getComputedStyle(document.documentElement);
+    const textMuted = style.getPropertyValue("--text-muted").trim() || "#8c8172";
+    const accent = style.getPropertyValue("--accent").trim() || "#b8860b";
+
+    ctx.clearRect(0, 0, W, H);
+
+    entries.forEach(([cat, revenue], i) => {
+      const y = startY + i * (barH + gap);
+      const barW = ((W - padLeft - padRight) * revenue) / maxVal;
+
+      // Category label
+      ctx.fillStyle = textMuted;
+      ctx.font = "12px 'DM Sans', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(catNames[cat] || cat, padLeft - 10, y + barH / 2 + 4);
+
+      // Bar
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      const r = 4;
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(padLeft + barW - r, y);
+      ctx.quadraticCurveTo(padLeft + barW, y, padLeft + barW, y + r);
+      ctx.lineTo(padLeft + barW, y + barH - r);
+      ctx.quadraticCurveTo(padLeft + barW, y + barH, padLeft + barW - r, y + barH);
+      ctx.lineTo(padLeft, y + barH);
+      ctx.closePath();
+      ctx.fill();
+
+      // Value
+      ctx.fillStyle = textMuted;
+      ctx.font = "11px 'DM Sans', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(formatPrice(revenue), padLeft + barW + 8, y + barH / 2 + 4);
+    });
+  };
+
+  const renderSalesDetailTable = () => {
+    const productSales = {};
+    orders.forEach((o) => {
+      o.items.forEach((item) => {
+        if (!productSales[item.id]) {
+          const product = products.find((p) => p.id === item.id);
+          productSales[item.id] = {
+            name: item.name,
+            cat: product ? catNames[product.cat] : "—",
+            qty: 0,
+            revenue: 0,
+          };
+        }
+        productSales[item.id].qty += item.qty;
+        productSales[item.id].revenue += item.price * item.qty;
+      });
+    });
+
+    const sorted = Object.values(productSales).sort((a, b) => b.revenue - a.revenue);
+
+    document.getElementById("salesDetailBody").innerHTML = sorted.map((p) => `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.cat}</td>
+        <td>${p.qty}</td>
+        <td>${formatPrice(p.revenue)}</td>
+      </tr>`).join("") || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Sin datos</td></tr>';
+  };
+
+  // ===== HU 17 — Customers Report =====
+
+  const renderCustomersReport = () => {
+    const customerData = {};
+    orders.forEach((o) => {
+      if (!customerData[o.user]) {
+        customerData[o.user] = {
+          email: o.user,
+          name: o.shipping ? o.shipping.name : o.user,
+          orders: 0,
+          totalSpent: 0,
+          lastOrder: o.date,
+        };
+      }
+      customerData[o.user].orders++;
+      customerData[o.user].totalSpent += o.total;
+      if (new Date(o.date) > new Date(customerData[o.user].lastOrder)) {
+        customerData[o.user].lastOrder = o.date;
+      }
+    });
+
+    const customerList = Object.values(customerData).sort((a, b) => b.totalSpent - a.totalSpent);
+    const totalCustomers = customerList.length;
+    const totalRevenue = customerList.reduce((sum, c) => sum + c.totalSpent, 0);
+    const avgSpend = totalCustomers > 0 ? Math.round(totalRevenue / totalCustomers) : 0;
+    const topCustomer = customerList[0] ? customerList[0].name : "—";
+
+    document.getElementById("customersSummary").innerHTML = `
+      <div class="report-tile">
+        <div class="report-tile-value">${totalCustomers}</div>
+        <div class="report-tile-label">Total clientes</div>
+      </div>
+      <div class="report-tile">
+        <div class="report-tile-value">${formatPrice(avgSpend)}</div>
+        <div class="report-tile-label">Gasto promedio</div>
+      </div>
+      <div class="report-tile">
+        <div class="report-tile-value">${topCustomer}</div>
+        <div class="report-tile-label">Mejor cliente</div>
+      </div>`;
+
+    const $body = document.getElementById("customersBody");
+    const $empty = document.getElementById("customersEmpty");
+
+    if (customerList.length === 0) {
+      $body.innerHTML = "";
+      $empty.hidden = false;
+      return;
+    }
+
+    $empty.hidden = true;
+
+    $body.innerHTML = customerList.map((c) => {
+      const lastDate = new Date(c.lastOrder).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" });
+      return `
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td>${c.email}</td>
+          <td>${c.orders}</td>
+          <td>${formatPrice(c.totalSpent)}</td>
+          <td>${lastDate}</td>
+        </tr>`;
+    }).join("");
+  };
+
+  // ===== INITIALIZATION =====
+
+  updateAuthUI();     // Restore auth state from localStorage
+  updateCartBadge();  // Restore cart state from localStorage
+  renderProducts();   // Render initial catalog
 
 });
