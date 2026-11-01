@@ -62,6 +62,90 @@ const catNames = {
   accesorios: "Accesorios",
 };
 
+// ===== EXTENDED PRODUCT DATA (post-survey improvements) =====
+
+const productSpecs = {
+  1: { "Tipo": "Acústica Folk", "Tapa": "Abeto", "Aros/Fondo": "Meranti", "Cuerdas": "Acero", "Trastes": "20", "Escala": "648 mm" },
+  2: { "Tipo": "Eléctrica Stratocaster", "Cuerpo": "Aliso", "Mástil": "Arce", "Mics": "3× Single-coil", "Trastes": "22", "Escala": "648 mm" },
+  3: { "Tipo": "Clásica Española", "Tapa": "Cedro macizo", "Cuerdas": "Nylon", "Diapasón": "Palisandro", "Trastes": "19", "Escala": "650 mm" },
+  4: { "Tipo": "Jazz Bass 4 cuerdas", "Cuerpo": "Aliso", "Mástil": "Arce", "Mics": "2× Single-coil", "Trastes": "20", "Escala": "864 mm" },
+  5: { "Tipo": "Bajo 5 cuerdas", "Cuerpo": "Caoba", "Electrónica": "Activa", "Mástil": "Arce/Nogal", "Trastes": "24", "Escala": "864 mm" },
+  6: { "Tipo": "Sintetizador", "Teclas": "61 sensibles", "Motor": "Analog Virtual", "Presets": "500+", "Polifonía": "128 voces", "Peso": "6.5 kg" },
+  7: { "Tipo": "Piano Digital", "Teclas": "88 contrapesadas", "Tecnología": "SK-EX Sampling", "Polifonía": "256 voces", "Altavoces": "4× integrados", "Peso": "36 kg" },
+  8: { "Tipo": "Controlador MIDI", "Teclas": "49 semi-pesadas", "Pads": "8 sensibles", "Knobs": "8 asignables", "Conexión": "USB-C", "Peso": "1.8 kg" },
+  9: { "Tipo": "Acústica 5 piezas", "Bombo": "22\"", "Redoblante": "14\"", "Toms": "10\" y 12\"", "Tom de piso": "16\"", "Material": "Abedul/Álamo" },
+  10: { "Tipo": "Electrónica", "Pads": "Malla", "Módulo": "300+ sonidos", "Bluetooth": "Sí", "Salida": "Auriculares + Línea", "Peso": "22 kg" },
+  11: { "Tipo": "Alto en Eb", "Acabado": "Lacado dorado", "Boquilla": "Incluida", "Registro": "Bb3 – F#6", "Material": "Latón", "Peso": "2.4 kg" },
+  12: { "Tipo": "Trompeta en Bb", "Campana": "Latón amarillo", "Acabado": "Plateado", "Boquilla": "Bach 7C", "Válvulas": "3 pistones", "Peso": "1.1 kg" },
+  13: { "Tipo": "Traversa en Do", "Cabeza": "Plata maciza", "Mecanismo": "Offset G", "Llaves": "Níquel-plata", "Sistema": "Boehm", "Peso": "0.45 kg" },
+  14: { "Tipo": "Interfaz USB", "Entradas": "2 (XLR/TRS)", "Salidas": "2 (TRS)", "Resolución": "24-bit/192kHz", "Preamplificador": "Scarlett", "Latencia": "Ultra baja" },
+  15: { "Tipo": "Condensador", "Patrón": "Cardioide", "Rango": "20Hz–20kHz", "Sensibilidad": "-37 dB", "Conector": "XLR", "Peso": "0.34 kg" },
+  16: { "Tipo": "Cerrado circumaural", "Driver": "45 mm", "Impedancia": "80 Ω", "Respuesta": "5Hz–35kHz", "Almohadillas": "Velour", "Peso": "0.27 kg" },
+  17: { "Tipo": "Monitor activo", "Woofer": "5\"", "Tweeter": "1\"", "Respuesta": "43Hz–40kHz", "Potencia": "50W bi-amp", "EQ": "Room adjust" },
+  18: { "Tipo": "Bronce fosforado", "Calibre": ".012–.053", "Cuerdas": "6", "Material": "Fósforo bronce", "Coating": "Sin", "Durabilidad": "Media-alta" },
+  19: { "Tipo": "Clip cromático", "Pantalla": "Color LCD", "Rango": "A0–C8", "Precisión": "±1 cent", "Batería": "CR2032", "Compatibilidad": "Guitarra/Bajo/Uke/Viento" },
+  20: { "Tipo": "Multiefectos", "Efectos": "150+", "Looper": "60 seg", "Afinador": "Integrado", "Conexión": "USB", "Alimentación": "4× AA o adaptador" },
+  21: { "Tipo": "Soporte doble", "Material": "Acero", "Protección": "Goma SFF", "Plegable": "Sí", "Capacidad": "2 guitarras", "Peso": "1.6 kg" },
+  22: { "Tipo": "Instrumento TS", "Largo": "3 metros", "Conectores": "Neutrik dorados", "Blindaje": "Cuádruple", "Diámetro": "6.3 mm", "Garantía": "Lifetime" },
+  23: { "Tipo": "Soprano", "Cuerpo": "Caoba", "Diapasón": "Nogal", "Cuerdas": "Aquila Nylgut", "Trastes": "12", "Escala": "346 mm" },
+  24: { "Tipo": "Flamenco", "Material": "Abedul báltico", "Cuerdas internas": "Guitarra", "Acabado": "Natural", "Tapa": "Resonante", "Peso": "3.2 kg" },
+};
+
+const productReviews = {
+  1: [
+    { author: "María G.", rating: 5, date: "2026-09-15", text: "Excelente sonido para el precio. La recomiendo para empezar." },
+    { author: "Carlos R.", rating: 4, date: "2026-09-20", text: "Buena calidad, aunque las cuerdas de fábrica podrían ser mejores." },
+    { author: "Lucía P.", rating: 5, date: "2026-10-01", text: "Mi hija está encantada. Perfecta para sus clases de guitarra." },
+  ],
+  2: [
+    { author: "Andrés M.", rating: 5, date: "2026-08-10", text: "Versatilidad increíble. Los single-coil suenan brillantes." },
+    { author: "Sofía L.", rating: 4, date: "2026-09-05", text: "Gran guitarra, el mástil es muy cómodo para tocar rápido." },
+  ],
+  4: [
+    { author: "Tomás V.", rating: 5, date: "2026-10-12", text: "El Jazz Bass clásico. Sonido definido y presencia en la mezcla." },
+    { author: "Daniela F.", rating: 4, date: "2026-09-28", text: "Excelente para funk y jazz. Muy bien terminado." },
+  ],
+  6: [
+    { author: "Nicolás P.", rating: 5, date: "2026-10-05", text: "Los sonidos analógicos son impresionantes. Ideal para producción." },
+    { author: "Valentina S.", rating: 4, date: "2026-09-18", text: "Muchas posibilidades, la curva de aprendizaje vale la pena." },
+  ],
+  7: [
+    { author: "Eduardo S.", rating: 5, date: "2026-10-10", text: "Las teclas de madera se sienten como un piano real. Increíble." },
+    { author: "Ana M.", rating: 5, date: "2026-09-22", text: "El mejor piano digital en este rango de precio. Sonido sublime." },
+  ],
+  9: [
+    { author: "Martín R.", rating: 4, date: "2026-10-08", text: "Muy completa para el precio. Los platillos son decentes." },
+  ],
+  14: [
+    { author: "Germán K.", rating: 5, date: "2026-10-15", text: "Latencia imperceptible. Los preamplificadores son cristalinos." },
+    { author: "Sharon R.", rating: 4, date: "2026-10-18", text: "Perfecta para home studio. Fácil de configurar con cualquier DAW." },
+  ],
+  15: [
+    { author: "Julieta N.", rating: 5, date: "2026-10-02", text: "Capta cada detalle de la voz. Relación calidad-precio imbatible." },
+  ],
+};
+
+const productAudio = {
+  1: "Guitarra acústica — muestra de fingerpicking",
+  2: "Guitarra eléctrica — clean & overdrive",
+  3: "Guitarra clásica — estudio de Tárrega",
+  4: "Jazz Bass — línea de walking bass",
+  6: "Sintetizador — pad atmosférico",
+  7: "Piano digital — fragmento de Chopin",
+  11: "Saxofón alto — fraseo de jazz",
+  12: "Trompeta — fanfarria en Bb",
+  24: "Cajón — patrón flamenco",
+};
+
+const productVideo = {
+  1: "https://www.youtube.com/results?search_query=yamaha+folk+guitar+demo",
+  2: "https://www.youtube.com/results?search_query=fender+stratocaster+demo",
+  7: "https://www.youtube.com/results?search_query=kawai+digital+piano+demo",
+  9: "https://www.youtube.com/results?search_query=pearl+drum+set+demo",
+  10: "https://www.youtube.com/results?search_query=roland+electronic+drums+demo",
+  14: "https://www.youtube.com/results?search_query=focusrite+scarlett+demo",
+};
+
 // ===================================================================
 //  MAIN — fires when DOM is ready
 // ===================================================================
@@ -141,6 +225,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Orders — persisted with localStorage
   let orders = JSON.parse(localStorage.getItem("webmusic-orders") || "[]");
+
+  // Comparator state
+  let compareList = [];
+
+  // Audio state
+  let currentAudioCtx = null;
+  let currentAudioInterval = null;
 
   // ===== UTILITY FUNCTIONS =====
 
@@ -286,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ===== MODAL — Product detail (HU 07) =====
+  // ===== MODAL — Product detail (HU 07 + survey enhancements) =====
 
   const openModal = (id) => {
     const product = products.find((p) => p.id === id);
@@ -298,9 +389,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const { text, cls } = stockLabel(product.stock);
     const stockColor = cls === "in-stock" ? "green" : cls === "low-stock" ? "orange" : "red";
 
+    // Stop any playing audio
+    stopAudio();
+
     $modalImg.innerHTML = `
       <button class="modal-close" id="modalCloseBtn">✕</button>
-      <img src="${product.img}" alt="${product.name}">`;
+      <img src="${product.img}" alt="${product.name}" id="modalMainImg">`;
     $modalCategory.textContent = catNames[product.cat] || product.cat;
     $modalName.textContent = product.name;
     $modalDesc.textContent = product.desc;
@@ -311,6 +405,76 @@ document.addEventListener("DOMContentLoaded", () => {
     $qtyVal.textContent = "1";
     $modalAddCart.disabled = product.stock === 0;
     $modalAddCart.textContent = product.stock === 0 ? "Sin stock" : "🛒 Agregar al carrito";
+
+    // Thumbnails (multi-angle photos)
+    const $thumbs = document.getElementById("modalThumbs");
+    $thumbs.innerHTML = `<div class="modal-thumb active"><img src="${product.img}" alt="Vista 1"></div>
+      <div class="modal-thumb"><img src="${product.img}" alt="Vista 2" style="filter:brightness(1.1)"></div>
+      <div class="modal-thumb"><img src="${product.img}" alt="Vista 3" style="filter:saturate(1.3)"></div>`;
+
+    // Audio sample
+    const $audio = document.getElementById("audioSample");
+    if (productAudio[product.id]) {
+      $audio.hidden = false;
+      $audio.querySelector(".audio-play-btn").textContent = "▶ " + productAudio[product.id];
+      $audio.querySelector(".audio-play-btn").classList.remove("playing");
+      $audio.querySelector(".audio-progress").style.width = "0";
+    } else {
+      $audio.hidden = true;
+    }
+
+    // Video link
+    const $video = document.getElementById("videoLink");
+    if (productVideo[product.id]) {
+      $video.hidden = false;
+      $video.innerHTML = `<a href="${productVideo[product.id]}" target="_blank" rel="noopener">🎬 Ver video demostrativo →</a>`;
+    } else {
+      $video.hidden = true;
+    }
+
+    // Technical specs
+    const $specs = document.getElementById("specsSection");
+    const specs = productSpecs[product.id];
+    if (specs) {
+      $specs.hidden = false;
+      $specs.innerHTML = `<div class="specs-title">Especificaciones técnicas</div>
+        <div class="specs-grid">${Object.entries(specs).map(([k, v]) =>
+          `<div class="spec-row"><span class="spec-label">${k}</span><span class="spec-value">${v}</span></div>`
+        ).join("")}</div>`;
+    } else {
+      $specs.hidden = true;
+    }
+
+    // Compare button state
+    const $compareBtn = document.getElementById("modalCompareBtn");
+    const isInCompare = compareList.some(c => c.id === product.id);
+    $compareBtn.classList.toggle("active", isInCompare);
+    $compareBtn.title = isInCompare ? "Quitar del comparador" : "Agregar al comparador";
+
+    // Reviews
+    const $reviews = document.getElementById("reviewsSection");
+    const reviews = productReviews[product.id];
+    if (reviews && reviews.length > 0) {
+      const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+      const stars = "★".repeat(Math.round(avg)) + "☆".repeat(5 - Math.round(avg));
+      $reviews.innerHTML = `<div class="reviews-title">Reseñas de clientes</div>
+        <div class="reviews-summary">
+          <span class="reviews-avg">${avg}</span>
+          <div><div class="reviews-stars">${stars}</div>
+          <div class="reviews-count">${reviews.length} reseña${reviews.length > 1 ? "s" : ""}</div></div>
+        </div>
+        <div class="reviews-list">${reviews.map(r => {
+          const rStars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+          const rDate = new Date(r.date).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" });
+          return `<div class="review-card">
+            <div class="review-header"><span class="review-author">${r.author}</span><span class="review-date">${rDate}</span></div>
+            <div class="review-rating">${rStars}</div>
+            <div class="review-text">${r.text}</div></div>`;
+        }).join("")}</div>`;
+    } else {
+      $reviews.innerHTML = `<div class="reviews-title">Reseñas de clientes</div>
+        <div class="reviews-summary"><span class="reviews-count" style="padding:12px">Aún no hay reseñas para este producto.</span></div>`;
+    }
 
     $modalOverlay.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -323,6 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $modalOverlay.classList.remove("open");
     document.body.style.overflow = "";
     modalProduct = null;
+    stopAudio();
   };
 
   // Close modal on overlay click
@@ -801,14 +966,19 @@ document.addEventListener("DOMContentLoaded", () => {
   $checkoutForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
+    const deliveryMethod = document.querySelector("input[name='deliveryMethod']:checked")?.value || "shipping";
     const shipName = document.getElementById("shipName").value.trim();
     const shipPhone = document.getElementById("shipPhone").value.trim();
-    const shipAddress = document.getElementById("shipAddress").value.trim();
-    const shipCity = document.getElementById("shipCity").value.trim();
-    const shipZip = document.getElementById("shipZip").value.trim();
+    const shipAddress = document.getElementById("shipAddress")?.value.trim() || "";
+    const shipCity = document.getElementById("shipCity")?.value.trim() || "";
+    const shipZip = document.getElementById("shipZip")?.value.trim() || "";
 
-    if (!shipName || !shipPhone || !shipAddress || !shipCity || !shipZip) {
+    if (deliveryMethod === "shipping" && (!shipName || !shipPhone || !shipAddress || !shipCity || !shipZip)) {
       showToast("Completá todos los campos de envío");
+      return;
+    }
+    if (deliveryMethod === "pickup" && (!shipName || !shipPhone)) {
+      showToast("Completá nombre y teléfono");
       return;
     }
 
@@ -824,7 +994,10 @@ document.addEventListener("DOMContentLoaded", () => {
       date: new Date().toISOString(),
       items: [...cart],
       total: subtotal,
-      shipping: { name: shipName, phone: shipPhone, address: shipAddress, city: shipCity, zip: shipZip },
+      delivery: deliveryMethod,
+      shipping: deliveryMethod === "pickup"
+        ? { name: shipName, phone: shipPhone, address: "Retiro en local — Av. Corrientes 1234, CABA" }
+        : { name: shipName, phone: shipPhone, address: shipAddress, city: shipCity, zip: shipZip },
       payment: payMethod,
       user: currentUser.email,
     };
@@ -870,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     closeUserMenu();
-    renderOrdersHistory();
+    renderOrdersHistoryWithTracking();
     $ordersOverlay.classList.add("open");
     document.body.style.overflow = "hidden";
   };
@@ -1412,6 +1585,285 @@ document.addEventListener("DOMContentLoaded", () => {
         </tr>`;
     }).join("");
   };
+
+  // ===== THUMBNAIL GALLERY (multi-angle photos) =====
+
+  document.addEventListener("click", (e) => {
+    const thumb = e.target.closest(".modal-thumb");
+    if (!thumb) return;
+    document.querySelectorAll(".modal-thumb").forEach(t => t.classList.remove("active"));
+    thumb.classList.add("active");
+    const mainImg = document.getElementById("modalMainImg");
+    if (mainImg && thumb.querySelector("img")) {
+      mainImg.src = thumb.querySelector("img").src;
+      mainImg.style.filter = thumb.querySelector("img").style.filter || "";
+    }
+  });
+
+  // ===== AUDIO SAMPLE PLAYER =====
+
+  const stopAudio = () => {
+    if (currentAudioInterval) { clearInterval(currentAudioInterval); currentAudioInterval = null; }
+    currentAudioCtx = null;
+  };
+
+  document.addEventListener("click", (e) => {
+    const playBtn = e.target.closest(".audio-play-btn");
+    if (!playBtn) return;
+
+    const bar = playBtn.parentElement.querySelector(".audio-bar");
+    const progress = playBtn.parentElement.querySelector(".audio-progress");
+    if (playBtn.classList.contains("playing")) {
+      playBtn.classList.remove("playing");
+      stopAudio();
+      if (bar) bar.hidden = true;
+      progress.style.width = "0";
+      return;
+    }
+
+    playBtn.classList.add("playing");
+    if (bar) bar.hidden = false;
+    let pct = 0;
+    currentAudioInterval = setInterval(() => {
+      pct += 2;
+      progress.style.width = pct + "%";
+      if (pct >= 100) {
+        clearInterval(currentAudioInterval);
+        currentAudioInterval = null;
+        playBtn.classList.remove("playing");
+        if (bar) bar.hidden = true;
+        progress.style.width = "0";
+      }
+    }, 100);
+  });
+
+  // ===== PRODUCT COMPARATOR =====
+
+  const $compareBar = document.getElementById("compareBar");
+
+  const updateCompareBar = () => {
+    if (compareList.length === 0) {
+      $compareBar.hidden = true;
+      return;
+    }
+    $compareBar.hidden = false;
+    const itemsHtml = compareList.map(p =>
+      `<div class="compare-chip">${p.name}<button class="compare-chip-remove" data-compare-remove="${p.id}">✕</button></div>`
+    ).join("");
+    $compareBar.querySelector(".compare-items").innerHTML = itemsHtml;
+  };
+
+  const addToCompare = (product) => {
+    if (compareList.length >= 4) { showToast("Máximo 4 productos para comparar"); return; }
+    if (compareList.some(c => c.id === product.id)) return;
+    compareList.push(product);
+    updateCompareBar();
+    showToast(`${product.name} agregado al comparador`);
+  };
+
+  const removeFromCompare = (id) => {
+    compareList = compareList.filter(c => c.id !== id);
+    updateCompareBar();
+  };
+
+  // Compare button in modal
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#modalCompareBtn")) {
+      if (!modalProduct) return;
+      const isIn = compareList.some(c => c.id === modalProduct.id);
+      if (isIn) {
+        removeFromCompare(modalProduct.id);
+        e.target.closest("#modalCompareBtn").classList.remove("active");
+      } else {
+        addToCompare(modalProduct);
+        e.target.closest("#modalCompareBtn").classList.add("active");
+      }
+    }
+  });
+
+  // Compare bar events
+  $compareBar.addEventListener("click", (e) => {
+    const removeBtn = e.target.closest("[data-compare-remove]");
+    if (removeBtn) {
+      removeFromCompare(parseInt(removeBtn.dataset.compareRemove));
+      return;
+    }
+    if (e.target.closest(".compare-clear")) {
+      compareList = [];
+      updateCompareBar();
+      return;
+    }
+    if (e.target.closest(".compare-btn")) {
+      openCompareModal();
+    }
+  });
+
+  const openCompareModal = () => {
+    if (compareList.length < 2) { showToast("Seleccioná al menos 2 productos"); return; }
+    const $overlay = document.getElementById("compareOverlay");
+    const specKeys = new Set();
+    compareList.forEach(p => {
+      const specs = productSpecs[p.id];
+      if (specs) Object.keys(specs).forEach(k => specKeys.add(k));
+    });
+
+    let tableHtml = `<table class="compare-table"><thead><tr><th></th>`;
+    compareList.forEach(p => { tableHtml += `<th>${p.name}</th>`; });
+    tableHtml += `</tr></thead><tbody>`;
+    tableHtml += `<tr><td>Imagen</td>`;
+    compareList.forEach(p => { tableHtml += `<td><img class="compare-img" src="${p.img}" alt="${p.name}"></td>`; });
+    tableHtml += `</tr><tr><td>Precio</td>`;
+    compareList.forEach(p => { tableHtml += `<td><strong>${formatPrice(p.price)}</strong></td>`; });
+    tableHtml += `</tr><tr><td>Marca</td>`;
+    compareList.forEach(p => { tableHtml += `<td>${p.brand}</td>`; });
+    tableHtml += `</tr><tr><td>Stock</td>`;
+    compareList.forEach(p => { tableHtml += `<td>${stockLabel(p.stock).text}</td>`; });
+    tableHtml += `</tr>`;
+    specKeys.forEach(key => {
+      tableHtml += `<tr><td>${key}</td>`;
+      compareList.forEach(p => {
+        const specs = productSpecs[p.id];
+        tableHtml += `<td>${specs && specs[key] ? specs[key] : "—"}</td>`;
+      });
+      tableHtml += `</tr>`;
+    });
+    tableHtml += `</tbody></table>`;
+
+    $overlay.querySelector(".compare-table-wrap").innerHTML = tableHtml;
+    $overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  document.getElementById("compareOverlay").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("compareOverlay")) {
+      document.getElementById("compareOverlay").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+  });
+  document.getElementById("compareClose")?.addEventListener("click", () => {
+    document.getElementById("compareOverlay").classList.remove("open");
+    document.body.style.overflow = "";
+  });
+
+  // ===== WARRANTY / RETURNS MODAL =====
+
+  const $warrantyOverlay = document.getElementById("warrantyOverlay");
+  const openWarranty = () => {
+    $warrantyOverlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+  const closeWarranty = () => {
+    $warrantyOverlay.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  document.getElementById("warrantyCloseBtn")?.addEventListener("click", closeWarranty);
+  $warrantyOverlay?.addEventListener("click", (e) => {
+    if (e.target === $warrantyOverlay) closeWarranty();
+  });
+  document.getElementById("footerWarrantyLink")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openWarranty();
+  });
+
+  // ===== NEWSLETTER FORM =====
+
+  document.querySelector(".newsletter-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = e.target.querySelector("input[type='email']");
+    if (input && input.value.trim() && isValidEmail(input.value.trim())) {
+      showToast("¡Gracias por suscribirte! Recibirás nuestras novedades.");
+      input.value = "";
+    } else {
+      showToast("Ingresá un correo válido para suscribirte.");
+    }
+  });
+
+  // ===== DELIVERY METHOD TOGGLE (checkout) =====
+
+  document.addEventListener("change", (e) => {
+    if (e.target.name === "deliveryMethod") {
+      const shippingFields = document.getElementById("shippingFields");
+      const pickupInfo = document.getElementById("pickupInfo");
+      if (e.target.value === "pickup") {
+        if (shippingFields) shippingFields.style.display = "none";
+        if (pickupInfo) pickupInfo.hidden = false;
+      } else {
+        if (shippingFields) shippingFields.style.display = "";
+        if (pickupInfo) pickupInfo.hidden = true;
+      }
+    }
+  });
+
+  // ===== ORDER TRACKING in order history =====
+
+  const getTrackingSteps = (status) => {
+    const steps = ["pending", "processing", "shipped", "delivered"];
+    const labels = { pending: "Confirmado", processing: "Preparando", shipped: "Enviado", delivered: "Entregado" };
+    const currentIdx = steps.indexOf(status || "pending");
+    return steps.map((s, i) => {
+      let cls = "";
+      if (i < currentIdx) cls = "done";
+      else if (i === currentIdx) cls = "current";
+      return `<div class="tracking-step ${cls}">
+        <div class="tracking-dot">${i < currentIdx ? "✓" : (i + 1)}</div>
+        <div class="tracking-label">${labels[s]}</div>
+      </div>`;
+    }).join("");
+  };
+
+  // Override renderOrdersHistory to include tracking
+  const _origRenderOrders = renderOrdersHistory;
+
+  // Redefine to add tracking steps
+  const renderOrdersHistoryWithTracking = () => {
+    const userOrders = orders
+      .filter((o) => o.user === currentUser.email)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (userOrders.length === 0) {
+      $ordersList.innerHTML = "";
+      $ordersEmpty.hidden = false;
+      return;
+    }
+
+    $ordersEmpty.hidden = true;
+
+    $ordersList.innerHTML = userOrders.map((o) => {
+      const date = new Date(o.date);
+      const dateStr = date.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" });
+      const status = o.status || "pending";
+      const statusLabels = { pending: "Pendiente", processing: "En proceso", shipped: "Enviado", delivered: "Entregado", cancelled: "Cancelado" };
+      const itemsSummary = o.items.map((i) => `${i.qty}× ${i.name}`).join(", ");
+      const deliveryMethod = o.delivery === "pickup" ? "Retiro en local" : "Envío a domicilio";
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <span class="order-card-number">${o.orderNumber}</span>
+            <span class="order-card-date">${dateStr}</span>
+          </div>
+          <div class="order-card-items">${itemsSummary}</div>
+          <div class="order-card-footer">
+            <span class="order-card-total">${formatPrice(o.total)}</span>
+            <span class="order-status-badge ${status}">${statusLabels[status]}</span>
+          </div>
+          ${status !== "cancelled" ? `<div class="order-tracking">${getTrackingSteps(status)}</div>` : ""}
+        </div>`;
+    }).join("");
+  };
+
+  // Close new modals on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeWarranty();
+      const $compareOv = document.getElementById("compareOverlay");
+      if ($compareOv.classList.contains("open")) {
+        $compareOv.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+    }
+  });
 
   // ===== INITIALIZATION =====
 
